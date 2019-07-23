@@ -16,12 +16,22 @@ fixture.push({
 
 fixture.push({
 	description: 'It should throw if endpoint is not a get endpoint',
-	endpoint: '/api/some-entity',
+	endpoint: '/some-entity',
 	error: true
 });
 
 fixture.push({
 	description: 'It pass for a simple get endpoint',
+	endpoint: '/some-entity/1',
+	result: {
+		modelName: 'some-entity',
+		recordId: '1',
+		parents: {}
+	}
+});
+
+fixture.push({
+	description: 'It pass for a simple get endpoint with the api prefix',
 	endpoint: '/api/some-entity/1',
 	result: {
 		modelName: 'some-entity',
@@ -32,6 +42,18 @@ fixture.push({
 
 fixture.push({
 	description: 'It pass for a get endpoint with one parent',
+	endpoint: '/some-parent/1/other-entity/2',
+	result: {
+		modelName: 'other-entity',
+		recordId: '2',
+		parents: {
+			someParent: '1'
+		}
+	}
+});
+
+fixture.push({
+	description: 'It pass for a get endpoint with one parent with the api prefix',
 	endpoint: '/api/some-parent/1/other-entity/2',
 	result: {
 		modelName: 'other-entity',
@@ -44,7 +66,7 @@ fixture.push({
 
 fixture.push({
 	description: 'It pass for a get endpoint with two parents',
-	endpoint: '/api/some-parent/1/other-parent/5/other-entity/10',
+	endpoint: '/some-parent/1/other-parent/5/other-entity/10',
 	result: {
 		modelName: 'other-entity',
 		recordId: '10',
@@ -57,7 +79,7 @@ fixture.push({
 
 fixture.push({
 	description: 'It pass for non numeric IDs',
-	endpoint: '/api/some-parent/some-non-numeric-id/other-entity/yet-another-id',
+	endpoint: '/some-parent/some-non-numeric-id/other-entity/yet-another-id',
 	result: {
 		modelName: 'other-entity',
 		recordId: 'yet-another-id',

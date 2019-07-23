@@ -34,35 +34,9 @@ describe('ApiGet', () => {
 			getModelInstanceFake.returns({});
 
 			const apiGet = new ApiGet();
-			apiGet.endpoint = '/api/';
+			apiGet.endpoint = '/';
 			apiGet.data = {};
 			apiGet.headers = {};
-
-			await assert.rejects(() => apiGet.validate(), ApiGetError);
-		});
-
-		it('Should throw if pathParameters are not set', async () => {
-
-			const apiGet = new ApiGet();
-			apiGet.endpoint = '/api/some-entity/10';
-
-			await assert.rejects(() => apiGet.validate(), ApiGetError);
-		});
-
-		it('Should throw if pathParameters is empty', async () => {
-
-			const apiGet = new ApiGet();
-			apiGet.endpoint = '/api/some-entity/10';
-			apiGet.pathParameters = [];
-
-			await assert.rejects(() => apiGet.validate(), ApiGetError);
-		});
-
-		it('Should throw if pathParameters has an invalid ID', async () => {
-
-			const apiGet = new ApiGet();
-			apiGet.endpoint = '/api/some-entity/10';
-			apiGet.pathParameters = [{ notAValidId: 'yeah' }];
 
 			await assert.rejects(() => apiGet.validate(), ApiGetError);
 		});
@@ -70,10 +44,10 @@ describe('ApiGet', () => {
 		it('Should throw if model is not found', async () => {
 
 			const getModelInstanceFake = sandbox.stub(ApiGet.prototype, '_getModelInstance');
-			getModelInstanceFake.throws('Model does not exist');
+			getModelInstanceFake.throws(new Error('Model does not exist'));
 
 			const apiGet = new ApiGet();
-			apiGet.endpoint = '/api/some-entity/10';
+			apiGet.endpoint = '/some-entity/10';
 			apiGet.pathParameters = ['10'];
 
 			await assert.rejects(() => apiGet.validate(), ApiGetError);
@@ -85,7 +59,7 @@ describe('ApiGet', () => {
 			getModelInstanceFake.returns({});
 
 			const apiGet = new ApiGet();
-			apiGet.endpoint = '/api/some-entity/10';
+			apiGet.endpoint = '/some-entity/10';
 			apiGet.pathParameters = ['10'];
 
 			const validation = await apiGet.validate();
@@ -109,7 +83,7 @@ describe('ApiGet', () => {
 			});
 
 			const apiGet = new ApiGet();
-			apiGet.endpoint = '/api/some-parent/10/some-entity/2';
+			apiGet.endpoint = '/some-parent/10/some-entity/2';
 			apiGet.pathParameters = ['10', '2'];
 
 			await apiGet.validate();
@@ -147,7 +121,7 @@ describe('ApiGet', () => {
 			}
 
 			const apiGet = new MyApiGet();
-			apiGet.endpoint = '/api/some-parent/10/some-entity/2';
+			apiGet.endpoint = '/some-parent/10/some-entity/2';
 			apiGet.pathParameters = ['10', '2'];
 
 			await apiGet.validate();
@@ -176,7 +150,7 @@ describe('ApiGet', () => {
 			});
 
 			const apiGet = new ApiGet();
-			apiGet.endpoint = '/api/some-entity/10';
+			apiGet.endpoint = '/some-entity/10';
 			apiGet.pathParameters = ['10'];
 
 			await apiGet.validate();
@@ -193,7 +167,7 @@ describe('ApiGet', () => {
 			});
 
 			const apiGet = new ApiGet();
-			apiGet.endpoint = '/api/some-entity/10';
+			apiGet.endpoint = '/some-entity/10';
 			apiGet.pathParameters = ['10'];
 
 			await apiGet.validate();
@@ -229,7 +203,7 @@ describe('ApiGet', () => {
 			});
 
 			const apiGet = new ApiGet();
-			apiGet.endpoint = '/api/some-entity/10';
+			apiGet.endpoint = '/some-entity/10';
 			apiGet.pathParameters = ['10'];
 
 			await apiGet.validate();
@@ -277,7 +251,7 @@ describe('ApiGet', () => {
 			});
 
 			const apiGet = new MyApiGet();
-			apiGet.endpoint = '/api/some-entity/10';
+			apiGet.endpoint = '/some-entity/10';
 			apiGet.pathParameters = ['10'];
 
 			await apiGet.validate();
