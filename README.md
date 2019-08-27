@@ -18,6 +18,14 @@ const { ApiGet } = require('@janiscommerce/api-get');
 
 class MyApiGet extends ApiGet {
 
+	get fieldsToSelect() {
+		return [
+			'id',
+			'name',
+			'status'
+		];
+	}
+
 	async format(record) {
 		return {
 			...record,
@@ -37,7 +45,7 @@ class MyApiGet extends ApiGet {
 module.exports = MyApiGet;
 ```
 
-Both methods are optional
+All methods are options
 
 # Get APIs with parents
 
