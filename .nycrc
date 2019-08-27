@@ -1,6 +1,6 @@
 {
   "exclude": [
-    "coverages/",
+    "coverage/",
     "tests/",
     "mocks/",
     ".eslintrc.js",

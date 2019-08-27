@@ -269,6 +269,41 @@ describe('ApiGet', () => {
 				limit: 1
 			});
 		});
+
+		it('Should pass fields to select if the getter is defined', async () => {
+
+			const getFake = sandbox.fake.returns([]);
+			const getTotalsFake = sandbox.fake.returns({ total: 0 });
+
+			const getModelInstanceFake = sandbox.stub(ApiGet.prototype, '_getModelInstance');
+			getModelInstanceFake.returns({
+				get: getFake,
+				getTotals: getTotalsFake
+			});
+
+			class MyApiGet extends ApiGet {
+				get fieldsToSelect() {
+					return ['id', 'name', 'status'];
+				}
+			}
+
+			const apiGet = new MyApiGet();
+			apiGet.endpoint = '/some-parent/1';
+			apiGet.data = {};
+			apiGet.headers = {};
+
+			await apiGet.validate();
+
+			await apiGet.process();
+
+			sandbox.assert.calledOnce(getFake);
+			sandbox.assert.calledWithExactly(getFake, {
+				filters: { id: '1' },
+				page: 1,
+				limit: 1,
+				fields: ['id', 'name', 'status']
+			});
+		});
 	});
 
 });
