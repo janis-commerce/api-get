@@ -45,7 +45,7 @@ class MyApiGet extends ApiGet {
 module.exports = MyApiGet;
 ```
 
-All methods are options
+All methods are optional
 
 # Get APIs with parents
 
