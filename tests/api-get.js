@@ -1,8 +1,10 @@
 'use strict';
 
 const assert = require('assert');
+const path = require('path');
 
-const sandbox = require('sinon').createSandbox();
+const sinon = require('sinon');
+const mockRequire = require('mock-require');
 
 const { ApiGet } = require('..');
 const { ApiGetError } = require('../lib');
@@ -10,15 +12,25 @@ const { ApiGetError } = require('../lib');
 describe('ApiGet', () => {
 
 	afterEach(() => {
-		sandbox.restore();
+		sinon.restore();
 	});
+
+	class Model {
+	}
+
+	const modelPath = path.join(process.cwd(), process.env.MS_PATH || '', 'models', 'some-entity');
 
 	describe('Validation', () => {
 
-		it('Should throw if endpoint is empty', async () => {
+		before(() => {
+			mockRequire(modelPath, Model);
+		});
 
-			const getModelInstanceFake = sandbox.stub(ApiGet.prototype, '_getModelInstance');
-			getModelInstanceFake.returns({});
+		after(() => {
+			mockRequire.stop(modelPath);
+		});
+
+		it('Should throw if endpoint is empty', async () => {
 
 			const apiGet = new ApiGet();
 			apiGet.endpoint = '';
@@ -30,9 +42,6 @@ describe('ApiGet', () => {
 
 		it('Should throw if endpoint is not a valid rest endpoint', async () => {
 
-			const getModelInstanceFake = sandbox.stub(ApiGet.prototype, '_getModelInstance');
-			getModelInstanceFake.returns({});
-
 			const apiGet = new ApiGet();
 			apiGet.endpoint = '/';
 			apiGet.data = {};
@@ -43,20 +52,14 @@ describe('ApiGet', () => {
 
 		it('Should throw if model is not found', async () => {
 
-			const getModelInstanceFake = sandbox.stub(ApiGet.prototype, '_getModelInstance');
-			getModelInstanceFake.throws(new Error('Model does not exist'));
-
 			const apiGet = new ApiGet();
-			apiGet.endpoint = '/some-entity/10';
+			apiGet.endpoint = '/some-other-entity/10';
 			apiGet.pathParameters = ['10'];
 
 			await assert.rejects(() => apiGet.validate(), ApiGetError);
 		});
 
 		it('Should validate if a valid model and ID is passed', async () => {
-
-			const getModelInstanceFake = sandbox.stub(ApiGet.prototype, '_getModelInstance');
-			getModelInstanceFake.returns({});
 
 			const apiGet = new ApiGet();
 			apiGet.endpoint = '/some-entity/10';
@@ -65,9 +68,6 @@ describe('ApiGet', () => {
 			const validation = await apiGet.validate();
 
 			assert.strictEqual(validation, undefined);
-
-			sandbox.assert.calledOnce(getModelInstanceFake);
-			sandbox.assert.calledWithExactly(getModelInstanceFake, `${process.cwd()}/models/some-entity`);
 		});
 	});
 
@@ -75,12 +75,15 @@ describe('ApiGet', () => {
 
 		it('Should pass endpoint parents to the model get as filters', async () => {
 
-			const getFake = sandbox.fake.returns([]);
+			class MyModel {
+				async get() {
+					return [];
+				}
+			}
 
-			const getModelInstanceFake = sandbox.stub(ApiGet.prototype, '_getModelInstance');
-			getModelInstanceFake.returns({
-				get: getFake
-			});
+			mockRequire(modelPath, MyModel);
+
+			sinon.spy(MyModel.prototype, 'get');
 
 			const apiGet = new ApiGet();
 			apiGet.endpoint = '/some-parent/10/some-entity/2';
@@ -90,8 +93,8 @@ describe('ApiGet', () => {
 
 			await apiGet.process();
 
-			sandbox.assert.calledOnce(getFake);
-			sandbox.assert.calledWithExactly(getFake, {
+			sinon.assert.calledOnce(MyModel.prototype.get);
+			sinon.assert.calledWithExactly(MyModel.prototype.get, {
 				page: 1,
 				limit: 1,
 				filters: {
@@ -99,16 +102,21 @@ describe('ApiGet', () => {
 					someParent: '10'
 				}
 			});
+
+			mockRequire.stop(modelPath);
 		});
 
 		it('Should parse filters if parse method is defined', async () => {
 
-			const getFake = sandbox.fake.returns([]);
+			class MyModel {
+				async get() {
+					return [];
+				}
+			}
 
-			const getModelInstanceFake = sandbox.stub(ApiGet.prototype, '_getModelInstance');
-			getModelInstanceFake.returns({
-				get: getFake
-			});
+			mockRequire(modelPath, MyModel);
+
+			sinon.spy(MyModel.prototype, 'get');
 
 			class MyApiGet extends ApiGet {
 				_parseFilters({ id, ...otherFilters }) {
@@ -128,8 +136,8 @@ describe('ApiGet', () => {
 
 			await apiGet.process();
 
-			sandbox.assert.calledOnce(getFake);
-			sandbox.assert.calledWithExactly(getFake, {
+			sinon.assert.calledOnce(MyModel.prototype.get);
+			sinon.assert.calledWithExactly(MyModel.prototype.get, {
 				page: 1,
 				limit: 1,
 				filters: {
@@ -138,13 +146,95 @@ describe('ApiGet', () => {
 					someParent: '10'
 				}
 			});
+
+			mockRequire.stop(modelPath);
+		});
+
+		it('Should use regular model when there is no session in API', async () => {
+
+			class MyModel {
+				async get() {
+					return [];
+				}
+			}
+
+			mockRequire(modelPath, MyModel);
+
+			sinon.spy(MyModel.prototype, 'get');
+
+			const apiGet = new ApiGet();
+			apiGet.endpoint = '/some-entity/10';
+			apiGet.data = {};
+			apiGet.headers = {};
+
+			await apiGet.validate();
+
+			await apiGet.process();
+
+			sinon.assert.calledOnce(MyModel.prototype.get);
+			sinon.assert.calledWithExactly(MyModel.prototype.get, {
+				page: 1,
+				limit: 1,
+				filters: {
+					id: '10'
+				}
+			});
+
+			assert.deepEqual(apiGet.model.session, undefined);
+
+			mockRequire.stop(modelPath);
+		});
+
+		it('Should use injected model when API has a session', async () => {
+
+			class MyModel {
+				async get() {
+					return [];
+				}
+			}
+
+			mockRequire(modelPath, MyModel);
+
+			sinon.spy(MyModel.prototype, 'get');
+
+			const sessionMock = {
+				getSessionInstance: sinon.fake(() => {
+					const modelInstance = new MyModel();
+					modelInstance.session = sessionMock;
+
+					return modelInstance;
+				})
+			};
+
+			const apiGet = new ApiGet();
+			apiGet.endpoint = '/some-entity/10';
+			apiGet.data = {};
+			apiGet.headers = {};
+			apiGet.session = sessionMock;
+
+			await apiGet.validate();
+
+			await apiGet.process();
+
+			sinon.assert.calledOnce(MyModel.prototype.get);
+			sinon.assert.calledWithExactly(MyModel.prototype.get, {
+				page: 1,
+				limit: 1,
+				filters: {
+					id: '10'
+				}
+			});
+
+			sinon.assert.calledOnce(sessionMock.getSessionInstance);
+			sinon.assert.calledWithExactly(sessionMock.getSessionInstance, MyModel);
+
+			mockRequire.stop(modelPath);
 		});
 
 		it('Should throw an internal error if get fails', async () => {
 
-			const getModelInstanceFake = sandbox.stub(ApiGet.prototype, '_getModelInstance');
-			getModelInstanceFake.returns({
-				get: () => {
+			mockRequire(modelPath, class MyModel {
+				async get() {
 					throw new Error('Some internal error');
 				}
 			});
@@ -156,15 +246,21 @@ describe('ApiGet', () => {
 			await apiGet.validate();
 
 			await assert.rejects(() => apiGet.process());
+
+			mockRequire.stop(modelPath);
 		});
 
 		it('Should set a 404 code and return a message if record is not found', async () => {
 
-			const getFake = sandbox.fake.returns([]);
-			const getModelInstanceFake = sandbox.stub(ApiGet.prototype, '_getModelInstance');
-			getModelInstanceFake.returns({
-				get: getFake
-			});
+			class MyModel {
+				async get() {
+					return [];
+				}
+			}
+
+			mockRequire(modelPath, MyModel);
+
+			sinon.spy(MyModel.prototype, 'get');
 
 			const apiGet = new ApiGet();
 			apiGet.endpoint = '/some-entity/10';
@@ -179,14 +275,16 @@ describe('ApiGet', () => {
 				message: 'common.message.notFound'
 			});
 
-			sandbox.assert.calledOnce(getFake);
-			sandbox.assert.calledWithExactly(getFake, {
+			sinon.assert.calledOnce(MyModel.prototype.get);
+			sinon.assert.calledWithExactly(MyModel.prototype.get, {
 				filters: {
 					id: '10'
 				},
 				page: 1,
 				limit: 1
 			});
+
+			mockRequire.stop(modelPath);
 		});
 
 		it('Should set response body with DB record if no format method is defined', async () => {
@@ -196,11 +294,15 @@ describe('ApiGet', () => {
 				foo: 'bar'
 			};
 
-			const getFake = sandbox.fake.returns([dbRecord]);
-			const getModelInstanceFake = sandbox.stub(ApiGet.prototype, '_getModelInstance');
-			getModelInstanceFake.returns({
-				get: getFake
-			});
+			class MyModel {
+				async get() {
+					return [dbRecord];
+				}
+			}
+
+			mockRequire(modelPath, MyModel);
+
+			sinon.spy(MyModel.prototype, 'get');
 
 			const apiGet = new ApiGet();
 			apiGet.endpoint = '/some-entity/10';
@@ -212,14 +314,16 @@ describe('ApiGet', () => {
 
 			assert.deepStrictEqual(apiGet.response.body, dbRecord);
 
-			sandbox.assert.calledOnce(getFake);
-			sandbox.assert.calledWithExactly(getFake, {
+			sinon.assert.calledOnce(MyModel.prototype.get);
+			sinon.assert.calledWithExactly(MyModel.prototype.get, {
 				filters: {
 					id: '10'
 				},
 				page: 1,
 				limit: 1
 			});
+
+			mockRequire.stop(modelPath);
 		});
 
 		it('Should set response body with the formatted record if format method is defined', async () => {
@@ -244,11 +348,15 @@ describe('ApiGet', () => {
 				moreFoo: 'baz'
 			};
 
-			const getFake = sandbox.fake.returns([dbRecord]);
-			const getModelInstanceFake = sandbox.stub(ApiGet.prototype, '_getModelInstance');
-			getModelInstanceFake.returns({
-				get: getFake
-			});
+			class MyModel {
+				async get() {
+					return [dbRecord];
+				}
+			}
+
+			mockRequire(modelPath, MyModel);
+
+			sinon.spy(MyModel.prototype, 'get');
 
 			const apiGet = new MyApiGet();
 			apiGet.endpoint = '/some-entity/10';
@@ -260,26 +368,29 @@ describe('ApiGet', () => {
 
 			assert.deepStrictEqual(apiGet.response.body, expectedRecord);
 
-			sandbox.assert.calledOnce(getFake);
-			sandbox.assert.calledWithExactly(getFake, {
+			sinon.assert.calledOnce(MyModel.prototype.get);
+			sinon.assert.calledWithExactly(MyModel.prototype.get, {
 				filters: {
 					id: '10'
 				},
 				page: 1,
 				limit: 1
 			});
+
+			mockRequire.stop(modelPath);
 		});
 
 		it('Should pass fields to select if the getter is defined', async () => {
 
-			const getFake = sandbox.fake.returns([]);
-			const getTotalsFake = sandbox.fake.returns({ total: 0 });
+			class MyModel {
+				async get() {
+					return [];
+				}
+			}
 
-			const getModelInstanceFake = sandbox.stub(ApiGet.prototype, '_getModelInstance');
-			getModelInstanceFake.returns({
-				get: getFake,
-				getTotals: getTotalsFake
-			});
+			mockRequire(modelPath, MyModel);
+
+			sinon.spy(MyModel.prototype, 'get');
 
 			class MyApiGet extends ApiGet {
 				get fieldsToSelect() {
@@ -288,7 +399,7 @@ describe('ApiGet', () => {
 			}
 
 			const apiGet = new MyApiGet();
-			apiGet.endpoint = '/some-parent/1';
+			apiGet.endpoint = '/some-entity/1';
 			apiGet.data = {};
 			apiGet.headers = {};
 
@@ -296,13 +407,15 @@ describe('ApiGet', () => {
 
 			await apiGet.process();
 
-			sandbox.assert.calledOnce(getFake);
-			sandbox.assert.calledWithExactly(getFake, {
+			sinon.assert.calledOnce(MyModel.prototype.get);
+			sinon.assert.calledWithExactly(MyModel.prototype.get, {
 				filters: { id: '1' },
 				page: 1,
 				limit: 1,
 				fields: ['id', 'name', 'status']
 			});
+
+			mockRequire.stop(modelPath);
 		});
 	});
 
