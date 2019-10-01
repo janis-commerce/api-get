@@ -6,8 +6,7 @@ const path = require('path');
 const sinon = require('sinon');
 const mockRequire = require('mock-require');
 
-const { ApiGet } = require('..');
-const { ApiGetError } = require('../lib');
+const { ApiGet, ApiGetError } = require('../lib');
 
 describe('ApiGet', () => {
 
