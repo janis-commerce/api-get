@@ -1,7 +1,7 @@
 {
   "name": "@janiscommerce/api-get",
-  "version": "2.1.0",
-  "description": "A package to handle JANIS Get APIs",
+  "version": "3.0.0",
+  "description": "A package to handle Janis Get APIs",
   "main": "lib/index.js",
   "scripts": {
     "test": "export TEST_ENV=true; mocha --exit -R nyan --recursive tests/",
@@ -18,14 +18,14 @@
   "license": "ISC",
   "homepage": "https://github.com/janis-commerce/api-get#readme",
   "devDependencies": {
-    "eslint": "^5.16.0",
     "eslint-config-airbnb-base": "^13.2.0",
     "eslint-plugin-import": "^2.17.3",
+    "eslint": "^7.2.0",
     "husky": "^2.7.0",
-    "mocha": "^5.2.0",
+    "mocha": "^8.0.1",
     "mock-require": "^3.0.3",
-    "nyc": "^13.1.0",
-    "sinon": "^7.3.2"
+    "nyc": "^15.1.0",
+    "sinon": "^9.0.2"
   },
   "files": [
     "lib/"
@@ -37,6 +37,6 @@
     "@janiscommerce/model": "^4.1.0"
   },
   "dependencies": {
-    "@janiscommerce/api": "^4.3.0"
+    "@janiscommerce/api": "^5.0.0"
   }
 }
