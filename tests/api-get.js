@@ -416,6 +416,124 @@ describe('ApiGet', () => {
 
 			mockRequire.stop(modelPath);
 		});
+
+		it('Should set response body with the formatted record when post get validation is defined and the record passes the validation', async () => {
+
+			class MyApiGet extends ApiGet {
+				format(record) {
+					return {
+						...record,
+						moreFoo: 'baz'
+					};
+				}
+
+				async postGetValidation({ foo }) {
+
+					if(foo !== 'bar') {
+						this.setCode(403);
+						throw new Error('Forbidden Foo');
+					}
+				}
+			}
+
+			const dbRecord = {
+				id: '10',
+				foo: 'bar'
+			};
+
+			const expectedRecord = {
+				id: '10',
+				foo: 'bar',
+				moreFoo: 'baz'
+			};
+
+			class MyModel {
+				async get() {
+					return [dbRecord];
+				}
+			}
+
+			mockRequire(modelPath, MyModel);
+
+			sinon.spy(MyModel.prototype, 'get');
+
+			const apiGet = new MyApiGet();
+			apiGet.endpoint = '/some-entity/10';
+			apiGet.pathParameters = ['10'];
+
+			await apiGet.validate();
+
+			await apiGet.process();
+
+			assert.deepStrictEqual(apiGet.response.body, expectedRecord);
+
+			sinon.assert.calledOnce(MyModel.prototype.get);
+			sinon.assert.calledWithExactly(MyModel.prototype.get, {
+				filters: {
+					id: '10'
+				},
+				page: 1,
+				limit: 1
+			});
+
+			mockRequire.stop(modelPath);
+		});
+
+		it('Should set status code 403 when post get validation is defined and the record does not pass the validation', async () => {
+
+			class MyApiGet extends ApiGet {
+				format(record) {
+					return {
+						...record,
+						moreFoo: 'baz'
+					};
+				}
+
+				async postGetValidation({ foo }) {
+
+					if(foo !== 'bar') {
+						this.setCode(403);
+						throw new Error('Forbidden Foo');
+					}
+				}
+			}
+
+			const dbRecord = {
+				id: '10',
+				foo: 'no-bar'
+			};
+
+			class MyModel {
+				async get() {
+					return [dbRecord];
+				}
+			}
+
+			mockRequire(modelPath, MyModel);
+
+			sinon.spy(MyModel.prototype, 'get');
+
+			const apiGet = new MyApiGet();
+			apiGet.endpoint = '/some-entity/10';
+			apiGet.pathParameters = ['10'];
+
+			await apiGet.validate();
+
+			await assert.rejects(apiGet.process(), { message: 'Forbidden Foo' });
+
+			assert.deepStrictEqual(apiGet.response.code, 403);
+
+			sinon.assert.calledOnce(MyModel.prototype.get);
+			sinon.assert.calledWithExactly(MyModel.prototype.get, {
+				filters: {
+					id: '10'
+				},
+				page: 1,
+				limit: 1
+			});
+
+			mockRequire.stop(modelPath);
+		});
 	});
 
 });
