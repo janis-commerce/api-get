@@ -427,7 +427,7 @@ describe('ApiGet', () => {
 					};
 				}
 
-				async postGetValidation({ foo }) {
+				async postGetValidate({ foo }) {
 
 					if(foo !== 'bar') {
 						this.setCode(403);
@@ -489,7 +489,7 @@ describe('ApiGet', () => {
 					};
 				}
 
-				async postGetValidation({ foo }) {
+				async postGetValidate({ foo }) {
 
 					if(foo !== 'bar') {
 						this.setCode(403);

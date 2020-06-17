@@ -51,7 +51,7 @@ class MyApiGet extends ApiGet {
 	 * Validates the record getted from DB before format.
 	 * @param {object} The record in DB
 	 **/
-	async postGetValidation({name}) {
+	async postGetValidate({name}) {
 
 		if(name !== 'bar') {
 			this.setCode(403);
