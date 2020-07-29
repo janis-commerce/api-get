@@ -49,7 +49,7 @@ class MyApiGet extends ApiGet {
 
 	/**
 	 * Validates the record getted from DB before format.
-	 * @param {object} The record in DB
+	 * @param {Object} The record in DB
 	 **/
 	async postGetValidate({name}) {
 

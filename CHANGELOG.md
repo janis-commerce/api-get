@@ -7,7 +7,7 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 
 ## [Unreleased]
 ## Added
-- Add new functionality `async postGetValidate()`
+- `postGetValidate` method to validate registry after getting it
 
 
 ## [3.0.0] - 2020-06-15
