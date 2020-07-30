@@ -51,9 +51,9 @@ class MyApiGet extends ApiGet {
 	 * Validates the record getted from DB before format.
 	 * @param {Object} The record in DB
 	 **/
-	async postGetValidate({name}) {
+	async postGetValidate({ name }) {
 
-		if(name !== 'bar') {
+		if(name === FORBIDDEN_NAME) {
 			this.setCode(403);
 			throw new Error('Forbidden name');
 		}
