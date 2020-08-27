@@ -1,10 +1,6 @@
 {
-  "exclude": [
-    "coverage/",
-    "tests/",
-    "mocks/",
-    ".eslintrc.js",
-    ".travis.yml"
+  "include": [
+    "lib/"
   ],
   "extension": [
     ".js"

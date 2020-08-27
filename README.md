@@ -1,7 +1,8 @@
 # API Get
 
-[![Build Status](https://travis-ci.org/janis-commerce/api-get.svg?branch=master)](https://travis-ci.org/janis-commerce/api-get)
+![Build Status](https://github.com/janis-commerce/api-get/workflows/Build%20Status/badge.svg)
 [![Coverage Status](https://coveralls.io/repos/github/janis-commerce/api-get/badge.svg?branch=master)](https://coveralls.io/github/janis-commerce/api-get?branch=master)
+[![npm version](https://badge.fury.io/js/%40janiscommerce%2Fapi-get.svg)](https://www.npmjs.com/package/@janiscommerce/api-get)
 
 A package to handle JANIS Get APIs
 
@@ -9,13 +10,6 @@ A package to handle JANIS Get APIs
 ```sh
 npm install @janiscommerce/api-get
 ```
-
-## ⚠️ **Breaking changes from version *3.0.0*** ⚠️
-*Since 3.0.0*
-
-API upgraded to v5. API Session store validations replaced with loactions
-
-For more information see [API](https://www.npmjs.com/package/@janiscommerce/api) and [API Session](https://www.npmjs.com/package/@janiscommerce/api-session)
 
 ## Usage
 ```js
