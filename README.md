@@ -53,6 +53,14 @@ class MyApiGet extends ApiGet {
 		}
 	}
 
+	/**
+	 *  It is to perform extra validations
+	 * @returns {void}
+	 */
+	async postValidate() {
+		if(!this.session.hasAccessToAllLocations)
+			throw new Error("No access");
+	}
 }
 
 module.exports = MyApiGet;

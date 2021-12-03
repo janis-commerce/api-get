@@ -66,7 +66,7 @@ describe('ApiGet', () => {
 
 			const validation = await apiGet.validate();
 
-			assert.strictEqual(validation, undefined);
+			assert.strictEqual(validation, true);
 		});
 	});
 
@@ -531,6 +531,33 @@ describe('ApiGet', () => {
 				page: 1,
 				limit: 1
 			});
+
+			mockRequire.stop(modelPath);
+		});
+
+		it('should rejects with 400 statusCode using postValidate custom validation', async () => {
+
+			class MyApiGet extends ApiGet {
+				async postValidate() {
+					throw new Error('Error validating');
+				}
+			}
+
+			class MyModel {
+				async get() {
+					return [];
+				}
+			}
+
+			mockRequire(modelPath, MyModel);
+
+			sinon.spy(MyModel.prototype, 'get');
+
+			const apiGet = new MyApiGet();
+			apiGet.endpoint = '/some-entity/10';
+			apiGet.pathParameters = ['10'];
+
+			await assert.rejects(() => apiGet.validate(), Error('Error validating'));
 
 			mockRequire.stop(modelPath);
 		});
