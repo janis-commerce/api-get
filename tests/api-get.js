@@ -561,6 +561,34 @@ describe('ApiGet', () => {
 
 			mockRequire.stop(modelPath);
 		});
+
+		it('Should validate APIs modelName if it has modelName', async () => {
+
+			class MyApiGet extends ApiGet {
+				get modelName() {
+					return 'other-entity';
+				}
+			}
+
+			class OtherEntityModel {
+				async get() {
+					return [];
+				}
+			}
+
+			const pathOtherEntity = path.join(process.cwd(), process.env.MS_PATH || '', 'models', 'other-entity');
+
+			mockRequire(pathOtherEntity, OtherEntityModel);
+
+			const apiGet = new MyApiGet();
+			apiGet.endpoint = '/some-entity/10';
+			apiGet.pathParameters = ['10'];
+
+			const validation = await apiGet.validate();
+			assert.strictEqual(validation, true);
+
+			mockRequire.stop(modelPath);
+		});
 	});
 
 });
