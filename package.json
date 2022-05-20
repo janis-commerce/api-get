@@ -39,6 +39,7 @@
     "test": "tests"
   },
   "dependencies": {
-    "@janiscommerce/api": "^6.4.2"
+    "@janiscommerce/api": "^6.4.2",
+    "@janiscommerce/superstruct": "^1.2.0"
   }
 }

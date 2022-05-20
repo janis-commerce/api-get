@@ -1,5 +1,6 @@
 'use strict';
 
+const { struct } = require('@janiscommerce/superstruct');
 const assert = require('assert');
 const path = require('path');
 
@@ -67,6 +68,24 @@ describe('ApiGet', () => {
 			const validation = await apiGet.validate();
 
 			assert.strictEqual(validation, true);
+		});
+
+		it('Should validate if a valid ID is passed', async () => {
+
+			sinon.restore();
+			class Model2 {
+				get idStruct() {
+					return struct('objectId');
+				}
+			}
+
+			mockRequire(modelPath, Model2);
+
+			const apiGet = new ApiGet();
+			apiGet.endpoint = '/some-entity/10';
+			apiGet.pathParameters = ['10'];
+
+			await assert.rejects(apiGet.validate(), { message: 'Expected a value of type `objectId` but received `"10"`.' });
 		});
 	});
 
