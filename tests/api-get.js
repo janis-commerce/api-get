@@ -74,7 +74,7 @@ describe('ApiGet', () => {
 
 			sinon.restore();
 			class Model2 {
-				get idStruct() {
+				async getIdStruct() {
 					return struct('objectId');
 				}
 			}
@@ -609,5 +609,4 @@ describe('ApiGet', () => {
 			mockRequire.stop(modelPath);
 		});
 	});
-
 });
