@@ -16,6 +16,9 @@ describe('ApiGet', () => {
 	});
 
 	class Model {
+		async getIdStruct() {
+			return undefined;
+		}
 	}
 
 	const modelPath = path.join(process.cwd(), process.env.MS_PATH || '', 'models', 'some-entity');
@@ -59,18 +62,28 @@ describe('ApiGet', () => {
 			await assert.rejects(() => apiGet.validate(), ApiGetError);
 		});
 
-		it('Should validate if a valid model and ID is passed', async () => {
+		it('Should reject if model fails on getting idStruct', async () => {
+
+			sinon.restore();
+			class Model2 {
+				async getIdStruct() {
+					return struct('objectId');
+				}
+			}
+
+			mockRequire(modelPath, Model2);
+
+			sinon.stub(Model2.prototype, 'getIdStruct')
+				.rejects(new Error('Internal Error'));
 
 			const apiGet = new ApiGet();
 			apiGet.endpoint = '/some-entity/10';
 			apiGet.pathParameters = ['10'];
 
-			const validation = await apiGet.validate();
-
-			assert.strictEqual(validation, true);
+			await assert.rejects(apiGet.validate(), { message: 'Internal Error' });
 		});
 
-		it('Should validate if a valid ID is passed', async () => {
+		it('Should reject if invalid ID is passed', async () => {
 
 			sinon.restore();
 			class Model2 {
@@ -87,6 +100,46 @@ describe('ApiGet', () => {
 
 			await assert.rejects(apiGet.validate(), { message: 'Expected a value of type `objectId` but received `"10"`.' });
 		});
+
+		it('Should validate if a valid model and ID is passed', async () => {
+			mockRequire(modelPath, Model);
+			const apiGet = new ApiGet();
+			apiGet.endpoint = '/some-entity/10';
+			apiGet.pathParameters = ['10'];
+
+			const validation = await apiGet.validate();
+
+			assert.strictEqual(validation, true);
+		});
+
+		it('Should not reject if model Database driver has no idStruct defined', async () => {
+
+			mockRequire(modelPath, Model);
+
+			const apiGet = new ApiGet();
+			apiGet.endpoint = '/some-entity/10';
+			apiGet.pathParameters = ['10'];
+
+			assert.deepStrictEqual(await apiGet.validate(), true);
+		});
+
+		it('Should not reject if invalid parent ID is passed', async () => {
+
+			sinon.restore();
+			class Model2 {
+				async getIdStruct() {
+					return struct('objectId');
+				}
+			}
+
+			mockRequire(modelPath, Model2);
+
+			const apiGet = new ApiGet();
+			apiGet.endpoint = '/some-parent/10/some-entity/6282c2484f64bffff55bcd7c';
+			apiGet.pathParameters = ['10', '6282c2484f64bffff55bcd7c'];
+
+			assert.deepStrictEqual(await apiGet.validate(), true);
+		});
 	});
 
 	describe('Process', () => {
@@ -96,6 +149,10 @@ describe('ApiGet', () => {
 			class MyModel {
 				async get() {
 					return [];
+				}
+
+				async getIdStruct() {
+					return undefined;
 				}
 			}
 
@@ -129,6 +186,10 @@ describe('ApiGet', () => {
 			class MyModel {
 				async get() {
 					return [];
+				}
+
+				async getIdStruct() {
+					return undefined;
 				}
 			}
 
@@ -174,6 +235,10 @@ describe('ApiGet', () => {
 				async get() {
 					return [];
 				}
+
+				async getIdStruct() {
+					return undefined;
+				}
 			}
 
 			mockRequire(modelPath, MyModel);
@@ -208,6 +273,10 @@ describe('ApiGet', () => {
 			class MyModel {
 				async get() {
 					return [];
+				}
+
+				async getIdStruct() {
+					return undefined;
 				}
 			}
 
@@ -252,6 +321,11 @@ describe('ApiGet', () => {
 		it('Should throw an internal error if get fails', async () => {
 
 			mockRequire(modelPath, class MyModel {
+
+				async getIdStruct() {
+					return undefined;
+				}
+
 				async get() {
 					throw new Error('Some internal error');
 				}
@@ -273,6 +347,10 @@ describe('ApiGet', () => {
 			class MyModel {
 				async get() {
 					return [];
+				}
+
+				async getIdStruct() {
+					return undefined;
 				}
 			}
 
@@ -315,6 +393,10 @@ describe('ApiGet', () => {
 			class MyModel {
 				async get() {
 					return [dbRecord];
+				}
+
+				async getIdStruct() {
+					return undefined;
 				}
 			}
 
@@ -370,6 +452,10 @@ describe('ApiGet', () => {
 				async get() {
 					return [dbRecord];
 				}
+
+				async getIdStruct() {
+					return undefined;
+				}
 			}
 
 			mockRequire(modelPath, MyModel);
@@ -403,6 +489,10 @@ describe('ApiGet', () => {
 			class MyModel {
 				async get() {
 					return [];
+				}
+
+				async getIdStruct() {
+					return undefined;
 				}
 			}
 
@@ -470,6 +560,10 @@ describe('ApiGet', () => {
 				async get() {
 					return [dbRecord];
 				}
+
+				async getIdStruct() {
+					return undefined;
+				}
 			}
 
 			mockRequire(modelPath, MyModel);
@@ -526,6 +620,10 @@ describe('ApiGet', () => {
 				async get() {
 					return [dbRecord];
 				}
+
+				async getIdStruct() {
+					return undefined;
+				}
 			}
 
 			mockRequire(modelPath, MyModel);
@@ -566,6 +664,10 @@ describe('ApiGet', () => {
 				async get() {
 					return [];
 				}
+
+				async getIdStruct() {
+					return undefined;
+				}
 			}
 
 			mockRequire(modelPath, MyModel);
@@ -592,6 +694,10 @@ describe('ApiGet', () => {
 			class OtherEntityModel {
 				async get() {
 					return [];
+				}
+
+				async getIdStruct() {
+					return undefined;
 				}
 			}
 
