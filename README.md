@@ -73,3 +73,10 @@ All methods are optional
 If you have for example, a get API for a sub-entity of one specific record, the parent will be automatically be added as a filter.
 
 For example, the following endpoint: `/api/parent-entity/1/sub-entity/2`, will be a get of the sub-entity, and `parentEntity: '1'` will be set as a filter.
+
+❗# Path ID validation
+
+If ID received by path parameter is invalid, the API will return a 400 error.
+This validation will only be performed if the database driver has `idStruct` getter implemented.
+This validation is only applied over the main record ID.
+Eg: For `/api/parent-entity/1/sub-entity/2` the ID validation will be applied only to `2`
