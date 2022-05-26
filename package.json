@@ -28,7 +28,8 @@
     "mock-require": "^3.0.3",
     "nyc": "^15.1.0",
     "sinon": "^12.0.1",
-    "typescript": "^4.5.2"
+    "typescript": "^4.5.2",
+    "@janiscommerce/superstruct": "^1.2.0"
   },
   "files": [
     "lib/",
@@ -39,7 +40,6 @@
     "test": "tests"
   },
   "dependencies": {
-    "@janiscommerce/api": "^6.4.2",
-    "@janiscommerce/superstruct": "^1.2.0"
+    "@janiscommerce/api": "^6.4.2"
   }
 }
