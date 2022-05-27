@@ -101,6 +101,33 @@ describe('ApiGet', () => {
 			await assert.rejects(apiGet.validate(), { message: 'Expected a value of type `objectId` but received `"10"`.' });
 		});
 
+		it('Should use validation defined in extended API', async () => {
+
+			sinon.restore();
+			class Model2 {
+				async getIdStruct() {
+					return struct('objectId');
+				}
+			}
+
+			class TestApi extends ApiGet {
+				async getIdStruct() {
+					return struct('string');
+				}
+			}
+
+			mockRequire(modelPath, Model2);
+			mockRequire(modelPath, TestApi);
+
+			const apiGet = new TestApi();
+			apiGet.endpoint = '/some-entity/10';
+			apiGet.pathParameters = ['10'];
+
+			const validation = await apiGet.validate();
+
+			assert.strictEqual(validation, true);
+		});
+
 		it('Should validate if a valid model and ID is passed', async () => {
 			mockRequire(modelPath, Model);
 			const apiGet = new ApiGet();
