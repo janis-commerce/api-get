@@ -74,9 +74,32 @@ If you have for example, a get API for a sub-entity of one specific record, the 
 
 For example, the following endpoint: `/api/parent-entity/1/sub-entity/2`, will be a get of the sub-entity, and `parentEntity: '1'` will be set as a filter.
 
-❗# Path ID validation
+# ✔️ Path ID validation
 
-If ID received by path parameter is invalid, the API will return a 400 error.
-This validation will only be performed if the database driver has `idStruct` getter implemented.
-This validation is only applied over the main record ID.
-Eg: For `/api/parent-entity/1/sub-entity/2` the ID validation will be applied only to `2`
+## Default behavior
+1. If received ID is invalid, the API will return a ***400*** error. 
+2. Only the main record id will be validated (eg: For `/api/parent-entity/1/sub-entity/2` the ID validation will be applied only to `2`).
+3. This validation will only be performed if the database driver has `idStruct` getter implemented.
+
+❗In case you want to set a different behaviour or validation, you can do it by overriding the `validateId` method.
+
+**eg: Adding validation for parent `ids`**
+```javascript
+	validateId() {
+
+		Object.values(this.parents).forEach(parentId => {
+			struct('string&!empty')(parentId)
+		});
+
+		struct('objectId')(this.recordId)
+	}
+```
+## How to disable validation
+In case you want to disable the validation, you can do it also by overriding the `validateId` method.
+
+**eg:**
+```javascript
+	validateId() {
+		// Do nothing
+	}
+```
