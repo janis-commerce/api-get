@@ -68,18 +68,21 @@ module.exports = MyApiGet;
 
 All methods are optional
 
-# Get APIs with parents
+## Get APIs with parents
 
 If you have for example, a get API for a sub-entity of one specific record, the parent will be automatically be added as a filter.
 
 For example, the following endpoint: `/api/parent-entity/1/sub-entity/2`, will be a get of the sub-entity, and `parentEntity: '1'` will be set as a filter.
 
-# ✔️ Path ID validation
+## ✔️ Path ID validation
+Validation for path ID is available. By implementing `validateId()` method, you can make sure ID format is correct. If received ID is invalid, the API will return a ***400*** error by default and no request will be made to database.
 
-## Default behavior
-1. If received ID is invalid, the API will return a ***400*** error. 
-2. Only the main record id will be validated (eg: For `/api/parent-entity/1/sub-entity/2` the ID validation will be applied only to `2`).
-3. This validation will only be performed if the database driver has `idStruct` getter implemented.
+### Default behavior
+1. This validation will only be performed if database driver has `idStruct` getter implemented.
+2. If received ID is invalid, the API will return a ***400*** error. 
+3. Validation applies only to main record ID (eg: For `/api/parent-entity/1/sub-entity/2` the ID validation will be applied only to `2`).
+
+### Customization
 
 ❗In case you want to set a different behaviour or validation, you can do it by overriding the `validateId` method.
 
@@ -94,7 +97,8 @@ For example, the following endpoint: `/api/parent-entity/1/sub-entity/2`, will b
 		struct('objectId')(this.recordId)
 	}
 ```
-## How to disable validation
+
+#### How to disable validation
 In case you want to disable the validation, you can do it also by overriding the `validateId` method.
 
 **eg:**
