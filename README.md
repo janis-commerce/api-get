@@ -99,7 +99,7 @@ Validation for path ID is available. By implementing `validateId()` method, you 
 ```
 
 #### How to disable validation
-In case you want to disable the validation, you can do it also by overriding the `validateId` method.
+In case database driver has an `idsStruct` defined and you want to disable validation, you can do it by overriding the `validateId` method.
 
 **eg:**
 ```javascript
