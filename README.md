@@ -75,16 +75,15 @@ If you have for example, a get API for a sub-entity of one specific record, the 
 For example, the following endpoint: `/api/parent-entity/1/sub-entity/2`, will be a get of the sub-entity, and `parentEntity: '1'` will be set as a filter.
 
 ## ✔️ Path ID validation
-Validation for path ID is available. By implementing `validateId()` method, you can make sure ID format is correct. If received ID is invalid, the API will return a ***400*** error by default and no request will be made to database.
+The `ID` in the `pathParameters` can be validated if the database needs it in order to avoid problems. If this feature is active, the statusCode for this kind of error will be `400`. This validation has a default behavior (Model version 6.3.0 or higher is needed), and can also be customized for specific needs.
 
 ### Default behavior
-1. This validation will only be performed if database driver has `idStruct` getter implemented.
-2. If received ID is invalid, the API will return a ***400*** error. 
-3. Validation applies only to main record ID (eg: For `/api/parent-entity/1/sub-entity/2` the ID validation will be applied only to `2`).
+1. The ID will not be validated unless the database driver has `idStruct` method implemented.
+2. Validation applies only to main record ID (eg: For `/api/parent-entity/1/sub-entity/2` the ID validation will be applied only to `2`).
 
 ### Customization
 
-❗In case you want to set a different behaviour or validation, you can do it by overriding the `validateId` method.
+❗In case you want to set a different behavior or validation, you can do it by overriding the `validateId` method.
 
 **eg: Adding validation for parent `ids`**
 ```javascript
@@ -99,7 +98,7 @@ Validation for path ID is available. By implementing `validateId()` method, you 
 ```
 
 #### How to disable validation
-In case database driver has an `idsStruct` defined and you want to disable validation, you can do it by overriding the `validateId` method.
+In case database driver has an `idStruct` defined and you want to disable validation, you can do it by overriding the `validateId` method.
 
 **eg:**
 ```javascript
