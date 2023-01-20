@@ -144,6 +144,54 @@ describe('ApiGet', () => {
 
 			assert.strictEqual(validation, true);
 		});
+
+
+		describe('Reducing response with fields and excludeFields', () => {
+
+			beforeEach(() => {
+				sinon.stub(MyModel.prototype, 'get')
+					.resolves([]);
+			});
+
+			context('When invalid parameters received', () => {
+
+				it('Should reject if fields param is received as string', async () => {
+
+					const apiGet = getApiInstance(ApiGet, {
+						data: { fields: 'foo' }
+					});
+
+					await assert.rejects(apiGet.validate(), ApiGetError);
+				});
+
+				it('Should reject if fields param is received as number', async () => {
+
+					const apiGet = getApiInstance(ApiGet, {
+						data: { fields: 8 }
+					});
+
+					await assert.rejects(apiGet.validate(), ApiGetError);
+				});
+
+				it('Should reject if excludeFields param is received as string', async () => {
+
+					const apiGet = getApiInstance(ApiGet, {
+						data: { excludeFields: 'bar' }
+					});
+
+					await assert.rejects(apiGet.validate(), ApiGetError);
+				});
+
+				it('Should reject if excludeFields param is received as number', async () => {
+
+					const apiGet = getApiInstance(ApiGet, {
+						data: { excludeFields: 10 }
+					});
+
+					await assert.rejects(apiGet.validate(), ApiGetError);
+				});
+			});
+		});
 	});
 
 	describe('Process', () => {
@@ -422,5 +470,7 @@ describe('ApiGet', () => {
 			const validation = await apiGet.validate();
 			assert.strictEqual(validation, true);
 		});
+
+
 	});
 });
