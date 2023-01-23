@@ -1,6 +1,6 @@
 {
   "name": "@janiscommerce/api-get",
-  "version": "4.1.0",
+  "version": "4.2.0",
   "description": "A package to handle Janis Get APIs",
   "main": "lib/index.js",
   "scripts": {
