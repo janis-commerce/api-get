@@ -145,7 +145,6 @@ describe('ApiGet', () => {
 			assert.strictEqual(validation, true);
 		});
 
-
 		describe('Reducing response with fields and excludeFields', () => {
 
 			beforeEach(() => {
@@ -471,6 +470,294 @@ describe('ApiGet', () => {
 			assert.strictEqual(validation, true);
 		});
 
+		describe('Reducing response with fields and excludeFields', () => {
+
+			beforeEach(() => {
+				sinon.stub(MyModel.prototype, 'get')
+					.resolves([]);
+			});
+
+			context('When received valid fields', () => {
+
+				it('Should select the fields', async () => {
+
+					const apiGet = getApiInstance(ApiGet, {
+						data: { fields: ['foo'] }
+					});
+
+					await apiGet.validate();
+
+					await apiGet.process();
+
+					assertGet({ fields: ['foo'] });
+				});
+
+				it('Should select the fields and ignore received excludeFields', async () => {
+
+					const apiGet = getApiInstance(ApiGet, {
+						data: {
+							fields: ['foo'],
+							excludeFields: ['bar']
+						}
+					});
+
+					await apiGet.validate();
+
+					await apiGet.process();
+
+					assertGet({ fields: ['foo'] });
+				});
+
+				it('Should ignore fields when Api denied select fields', async () => {
+
+					class MyApiList extends ApiGet {
+						get fieldsToSelect() {
+							return false;
+						}
+					}
+
+					const apiGet = getApiInstance(MyApiList, {
+						data: { fields: ['foo'] }
+					});
+
+					await apiGet.validate();
+
+					await apiGet.process();
+
+					assertGet();
+				});
+
+				it('Should select the fields respecting Api fields to select definition', async () => {
+
+					class MyApiList extends ApiGet {
+						get fieldsToSelect() {
+							return ['foo', 'bar'];
+						}
+					}
+
+					const apiGet = getApiInstance(MyApiList, {
+						data: { fields: ['foo', 'not-allowed-field'] }
+					});
+
+					await apiGet.validate();
+
+					await apiGet.process();
+
+					assertGet({ fields: ['foo'] });
+				});
+
+				it('Should select the fields and add fixed fields defined by the Api', async () => {
+
+					class MyApiList extends ApiGet {
+						get fixedFields() {
+							return ['bar'];
+						}
+					}
+
+					const apiGet = getApiInstance(MyApiList, {
+						data: { fields: ['foo'] }
+					});
+
+					await apiGet.validate();
+
+					await apiGet.process();
+
+					assertGet({ fields: ['foo', 'bar'] });
+				});
+
+				it('Should select the fields and exclude fields defined by the Api', async () => {
+
+					class MyApiList extends ApiGet {
+						get fieldsToExclude() {
+							return ['bar'];
+						}
+					}
+
+					const apiGet = getApiInstance(MyApiList, {
+						data: { fields: ['foo', 'bar'] }
+					});
+
+					await apiGet.validate();
+
+					await apiGet.process();
+
+					assertGet({ fields: ['foo'] });
+				});
+			});
+
+			context('When Api has fieldsToSelect defined', () => {
+
+				it('Should select the fields', async () => {
+
+					class MyApiList extends ApiGet {
+						get fieldsToSelect() {
+							return ['foo', 'bar'];
+						}
+					}
+
+					const apiGet = getApiInstance(MyApiList);
+
+					await apiGet.validate();
+
+					await apiGet.process();
+
+					assertGet({ fields: ['foo', 'bar'] });
+				});
+
+				it('Should select the fields and add the fixedFields defined by the Api', async () => {
+
+					class MyApiList extends ApiGet {
+						get fieldsToSelect() {
+							return ['foo'];
+						}
+
+						get fixedFields() {
+							return ['bar'];
+						}
+					}
+
+					const apiGet = getApiInstance(MyApiList);
+
+					await apiGet.validate();
+
+					await apiGet.process();
+
+					assertGet({ fields: ['foo', 'bar'] });
+				});
+
+				it('Should select the fields but exclude the excludeFields when received by param', async () => {
+
+					class MyApiList extends ApiGet {
+						get fieldsToSelect() {
+							return ['foo', 'bar'];
+						}
+					}
+
+					const apiGet = getApiInstance(MyApiList, {
+						data: { excludeFields: ['foo'] }
+					});
+
+					await apiGet.validate();
+
+					await apiGet.process();
+
+					assertGet({ fields: ['bar'] });
+				});
+			});
+
+			context('When received valid excludeFields', () => {
+
+				it('Should exclude the fields', async () => {
+
+					const apiGet = getApiInstance(ApiGet, {
+						data: { excludeFields: ['foo'] }
+					});
+
+					await apiGet.validate();
+
+					await apiGet.process();
+
+					assertGet({ excludeFields: ['foo'] });
+				});
+
+				it('Should not to exclude fields when Api now allows it', async () => {
+
+					class MyApiList extends ApiGet {
+						get fieldsToExclude() {
+							return false;
+						}
+					}
+
+					const apiGet = getApiInstance(MyApiList, {
+						data: { excludeFields: ['foo'] }
+					});
+
+					await apiGet.validate();
+
+					await apiGet.process();
+
+					assertGet();
+				});
+
+				it('Should exclude the fields and also those fields defined by the Api', async () => {
+
+					class MyApiList extends ApiGet {
+						get fieldsToExclude() {
+							return ['bar'];
+						}
+					}
+
+					const apiGet = getApiInstance(MyApiList, {
+						data: { excludeFields: ['foo'] }
+					});
+
+					await apiGet.validate();
+
+					await apiGet.process();
+
+					assertGet({ excludeFields: ['foo', 'bar'] });
+				});
+
+				it('Should exclude the fields respecting fixed fields defined by the Api', async () => {
+
+					class MyApiList extends ApiGet {
+						get fixedFields() {
+							return ['bar'];
+						}
+					}
+
+					const apiGet = getApiInstance(MyApiList, {
+						data: { excludeFields: ['foo', 'bar'] }
+					});
+
+					await apiGet.validate();
+
+					await apiGet.process();
+
+					assertGet({ excludeFields: ['foo'] });
+				});
+			});
+
+			context('When Api defines fieldsToExclude', () => {
+				it('Should exclude the fields', async () => {
+
+					class MyApiList extends ApiGet {
+						get fieldsToExclude() {
+							return ['bar'];
+						}
+					}
+
+					const apiGet = getApiInstance(MyApiList);
+
+					await apiGet.validate();
+
+					await apiGet.process();
+
+					assertGet({ excludeFields: ['bar'] });
+				});
+
+				it('Should exclude the fields respecting fixed fields defined by the Api', async () => {
+
+					class MyApiList extends ApiGet {
+						get fieldsToExclude() {
+							return ['foo', 'bar'];
+						}
+
+						get fixedFields() {
+							return ['bar'];
+						}
+					}
+
+					const apiGet = getApiInstance(MyApiList);
+
+					await apiGet.validate();
+
+					await apiGet.process();
+
+					assertGet({ excludeFields: ['foo'] });
+				});
+			});
+		});
 
 	});
 });

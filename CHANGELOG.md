@@ -7,6 +7,14 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 
 ## [Unreleased]
 
+## [4.2.0] - 2023-01-23
+### Added
+_ New _parameter_ `fields` to select specific fields to be responded.
+_ New _parameter_ `excludeFields` to select specific fields to be excluded in the response.
+- Now the _getter_ `fieldsToSelect` can be `false` to prevent to use `fields` _parameter_.
+- New _getter_ `fieldsToExclude` to define witch fields must be excluded from the response.
+- New _getter_ `fixedFields` to define witch fields must be responded and can't be excluded.
+
 ## [4.1.0] - 2022-05-31
 ### Added
 - Struct validation for path id
