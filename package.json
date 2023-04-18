@@ -20,7 +20,7 @@
   "license": "ISC",
   "homepage": "https://github.com/janis-commerce/api-get#readme",
   "devDependencies": {
-    "@janiscommerce/model": "^6.8.2",
+    "@janiscommerce/model": "^7.0.0",
     "eslint": "^8.4.1",
     "eslint-config-airbnb-base": "^13.2.0",
     "eslint-plugin-import": "^2.25.3",
