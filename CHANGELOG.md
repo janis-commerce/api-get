@@ -7,6 +7,10 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 
 ## [Unreleased]
 
+## [5.0.0] - 2023-04-18
+### Changed
+- Update [@janiscommerce/api](https://www.npmjs.com/package/@janiscommerce/api) to version 7.0.0
+
 ## [4.2.0] - 2023-01-23
 ### Added
 _ New _parameter_ `fields` to select specific fields to be responded.
