@@ -18,7 +18,15 @@ module.exports = {
 		'import/core-modules': ['aws-sdk', 'lodash', 'yamljs', 'openapi-schema-validator']
 	},
 
+	overrides: [{
+		files: ['tests/**/*.js'],
+		rules: {
+			'max-classes-per-file': 0
+		}
+	}],
+
 	rules: {
+		strict: ['error', 'global'],
 		'operator-linebreak': 0,
 		'no-continue': 0,
 		'no-plusplus': 0,
