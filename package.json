@@ -6,11 +6,11 @@
   "scripts": {
     "test": "export TEST_ENV=true; mocha --exit -R nyan --recursive tests/",
     "watch-test": "export TEST_ENV=true; mocha --exit -R nyan -w --recursive tests/",
-    "test-ci": "nyc --reporter=lcov --reporter=text-summary mocha --exit --recursive tests/",
     "build-types": "tsc lib/index.js --declaration --allowJs --emitDeclarationOnly --outDir types",
     "coverage": "nyc npm test",
     "lint": "eslint lib/ tests/",
-    "prepare": "husky install"
+    "prepare": "husky install",
+    "coverage-ci": "nyc --reporter=lcov --reporter=text-summary mocha --exit --recursive tests/"
   },
   "repository": {
     "type": "git",
@@ -22,7 +22,7 @@
   "devDependencies": {
     "@janiscommerce/model": "^7.0.0",
     "eslint": "^8.4.1",
-    "eslint-config-airbnb-base": "^13.2.0",
+    "eslint-config-airbnb-base": "^15.0.0",
     "eslint-plugin-import": "^2.25.3",
     "husky": "^8.0.3",
     "mocha": "^10.2.0",
@@ -42,5 +42,8 @@
   "dependencies": {
     "@janiscommerce/api": "^8.0.0",
     "@janiscommerce/superstruct": "^1.2.1"
+  },
+  "engines": {
+    "node": ">=18"
   }
 }
