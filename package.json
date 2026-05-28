@@ -6,11 +6,11 @@
   "scripts": {
     "test": "export TEST_ENV=true; mocha --exit -R nyan --recursive tests/",
     "watch-test": "export TEST_ENV=true; mocha --exit -R nyan -w --recursive tests/",
-    "test-ci": "nyc --reporter=lcov --reporter=text-summary mocha --exit --recursive tests/",
     "build-types": "tsc lib/index.js --declaration --allowJs --emitDeclarationOnly --outDir types",
     "coverage": "nyc npm test",
     "lint": "eslint lib/ tests/",
-    "prepare": "husky install"
+    "prepare": "husky install",
+    "coverage-ci": "nyc --reporter=lcov --reporter=text-summary mocha --exit --recursive tests/"
   },
   "repository": {
     "type": "git",
